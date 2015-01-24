@@ -13,7 +13,7 @@ var overpass_result= '[out:json][timeout:25];'+
 // print results
 'out body center;';
 
-var overpass_boundary='[out:json][timeout:25];'+
+var overpass_boundary='[out:xml][timeout:25];'+
     'area(3602618040)->.searchArea;'+
     '('+
     '    relation["boundary"="administrative"]["admin_level"="{{alevel}}"]["name"="{{name}}"](area.searchArea);'+
@@ -100,8 +100,8 @@ function get_op_elements() {
     });
 }
 
-function put_stadteil_to_map(relation) {
-    var layer=L.geoJson(osmtogeojson(relation)).addTo(map);
+function put_stadteil_to_map(xml) {
+    var layer=new L.OSM.DataLayer(xml).addTo(map);
     map.fitBounds(layer.getBounds());
 
 }

@@ -36,6 +36,19 @@ function getFromOverpassWithCache($filename,$url) {
  return $data;
 }
 
+function getTagsFromOrt($name) {
+$filename_suburb="cache/suburb.json";
+ $boundarys=json_decode(getFromOverpassWithCache($filename_suburb,$url_suburb));
+
+$bezirke=array();
+$stadteile=array();
+foreach ($boundarys->{'elements'} as $ele) {
+	if ($ele->{'tags'}->{'name'} == $name) {
+	  return $ele->{'tags'};
+	}
+}
+}
+
 function getBezirkStadtteile() {
 
 $filename_suburb="cache/suburb.json";
