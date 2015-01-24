@@ -13,6 +13,8 @@ var overpass_result= '[out:json][timeout:25];'+
 // print results
 'out body center;';
 
+var objLayer;
+
 var overpass_boundary='[out:xml][timeout:25];'+
     'area(3602618040)->.searchArea;'+
     '('+
@@ -59,6 +61,7 @@ function setPoiMarker(poi_type, icon, lat, lon, tags, osmid, osmtype) {
 	mrk.addTo(map);
     }
 
+
 function element_to_map(data) {
     $.each(poi_markers, function(_, mrk) {
 	map.removeLayer(mrk);
@@ -101,9 +104,51 @@ function get_op_elements() {
 }
 
 function put_stadteil_to_map(xml) {
-    var layer=new L.OSM.DataLayer(xml).addTo(map);
-    map.fitBounds(layer.getBounds());
+    if (objLayer) {
+	map.removeLayer(objLayer);
+    }
+    objLayer=new L.OSM.DataLayer(xml).addTo(map);
+    map.fitBounds(objLayer.getBounds());
 
+}
+function loadBoundary(name,alevel) {
+    var place_overpass=overpass_boundary.replace(/{{alevel}}/g,alevel).replace(/{{name}}/g,name);
+
+    $.ajax({
+        url: "https://overpass-api.de/api/interpreter",
+        data: {
+            "data": place_overpass
+        },
+        success: put_stadteil_to_map
+    });
+
+}
+function displayPathContent(content) {
+    $('#objInfo').html(content);
+    console.log(content);
+}
+function loadPathContent(path) {
+    $.ajax({
+        url: baseurl+"getPathContent.php",
+        data: {
+	    "path": path
+	},
+	success: displayPathContent
+    });
+}
+function loadBezirk(name) {
+    document.getElementsByTagName('title')[0].innerHTML = "OpenStreetMap Hamburg Bezirk "+name;
+    window.history.pushState( {} , baseurl+'Bezirk/'+name ,baseurl+ 'Bezirk/'+name );
+    loadPathContent('Bezirk/'+name);
+    loadBoundary(name,'9');
+    return false;
+}
+function loadStadtteil(name) {
+    document.getElementsByTagName('title')[0].innerHTML = "OpenStreetMap Hamburg Stadtteil "+name;
+    window.history.pushState( {} , baseurl+'Stadtteil/'+name , baseurl+'Stadtteil/'+name );
+    loadPathContent('Stadtteil/'+name);
+    loadBoundary(name,'10');
+    return false;
 }
 $(function() {
 
@@ -129,15 +174,7 @@ $(function() {
 	    alevel='9';
 	}
 	var name=params.replace(/^Stadtteil\//,'').replace(/^Bezirk\//,'');
-	var place_overpass=overpass_boundary.replace(/{{alevel}}/g,alevel).replace(/{{name}}/g,name);
-    
-	$.ajax({
-	    url: "https://overpass-api.de/api/interpreter",
-	    data: {
-		"data": place_overpass
-	    },
-	    success: put_stadteil_to_map
-	});
+	loadBoundary(name,alevel);
     }
 
     L.control.zoom({ position : 'topright'}).addTo(map);

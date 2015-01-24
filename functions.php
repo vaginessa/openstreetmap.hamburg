@@ -4,6 +4,30 @@ function getRootURL() {
 	 return "/osmhh/";
 }
 
+
+function getPathInfo($path) {
+
+$tags=[];
+if (startsWith($path,"Bezirk/")) {
+$bezirk=str_replace('Bezirk/','',$path);
+$rtn="<h2>Bezirk ".$bezirk."</h2>";
+$tags=getTagsFromOrt($bezirk,'9');
+}
+
+if (startsWith($path,"Stadtteil/")) {
+$ort=str_replace('Stadtteil/','',$path);
+$rtn="<h2>Stadtteil ".$ort."</h2>";
+$tags=getTagsFromOrt($ort,'10');
+}
+$rtn=$rtn."<table>";
+foreach($tags as $key => $value) {
+	$rtn=$rtn.'<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
+}
+$rtn=$rtn."</table>";
+return $rtn;
+}
+
+
 function startsWith($haystack, $needle) {
     // search backwards starting from haystack length characters from the end
     return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
@@ -36,14 +60,14 @@ function getFromOverpassWithCache($filename,$url) {
  return $data;
 }
 
-function getTagsFromOrt($name) {
+function getTagsFromOrt($name,$alevel) {
 $filename_suburb="cache/suburb.json";
  $boundarys=json_decode(getFromOverpassWithCache($filename_suburb,$url_suburb));
 
 $bezirke=array();
 $stadteile=array();
 foreach ($boundarys->{'elements'} as $ele) {
-	if ($ele->{'tags'}->{'name'} == $name) {
+	if (($ele->{'tags'}->{'name'} == $name) && ($ele->{'tags'}->{'admin_level'} == $alevel)) {
 	  return $ele->{'tags'};
 	}
 }

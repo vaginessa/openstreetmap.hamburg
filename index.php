@@ -12,10 +12,12 @@ header('Content-Type: text/html; charset=utf-8');
 ?>
 <html>
 <head>
+<title>OpenStreetMap Hamburg Startseite</title>
  <link rel="stylesheet" href="<?php echo $url ?>leaflet/leaflet.css" />
  <link rel="stylesheet" href="<?php echo $url ?>css/main.css" />
  <script>
    var params='<?php echo htmlentities($_GET['p']); ?>';
+   var baseurl='<?php echo $url; ?>';
  </script>
  <script src="<?php echo $url ?>leaflet/leaflet.js"></script>
  <script src="<?php echo $url ?>js/jquery-1.11.2.min.js"></script>
@@ -25,42 +27,26 @@ header('Content-Type: text/html; charset=utf-8');
 </head>
 <body>
 <div id='sidebar'>
+<div id='objInfo'>
 <?php 
-if (startsWith($_GET['p'],"Bezirk/")) {
-$bezirk=str_replace('Bezirk/','',$_GET['p']);
+print getPathInfo($_GET['p']);
 ?>
-<h2>Bezirk <?php print $bezirk;?></h2>
-<?php
-$tags=getTagsFromOrt($bezirk);
-print_r($tags);
-?>
-<a href="<? echo $url;?>">zurück</a>
-<?php
-} elseif (startsWith($_GET['p'],"Stadtteil/")) {
-$stadtteil=str_replace('Stadtteil/','',$_GET['p']);
-$tags=getTagsFromOrt($stadtteil);
-print_r($tags);
-?>
-<h2>Stadtteil <?php print $stadtteil;?></h2>
-
-<a href="<? echo $url;?>">zurück</a>
-<?php
-} else {
-
-?>
+</div>
 <h2>Bezirke</h2><?php
 foreach ($bezirke as $bezirk) {
-	?><li><a href="<?php echo $url ?>Bezirk/<?php print $bezirk ?>" onclick="loadBezirk('<?php echo $url ?>Bezirk/<?php print $bezirk ?>');"><?php print $bezirk ?></a></li><?php
+	?><li><a href="<?php echo $url;
+	?>Bezirk/<?php print $bezirk; 
+	?>" onclick="return loadBezirk('<?php print $bezirk ?>');"><?php print $bezirk ?></a></li><?php
 }
 
 ?><h2>Stadtteile</h2><?php
 foreach ($stadtteile as $key => $stadtteil) {
 	?><li><a href="<?php 
 	echo $url . 'Stadtteil/' . $stadtteil; 
-	?>"><?php 
+	?>" onclick="return loadStadtteil('<?php print $stadtteil ?>');"><?php 
 	print $stadtteil; 
 	?></a></li><?php
-}}
+}
 ?>
 </div>
 <div id='map'>
