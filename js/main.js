@@ -152,6 +152,25 @@ function loadStadtteil(name) {
 }
 $(function() {
 
+
+// Drag and Drop for sidebar
+
+  $('#drag').on('mousedown', function(e){
+	var startWidth = $('#sidebarmain').width(),
+            pX = e.pageX;
+        
+        $(document).on('mouseup', function(e){
+            $(document).off('mouseup').off('mousemove');
+        });
+        $(document).on('mousemove', function(me){
+            var mx = (pX - me.pageX );
+            //var my = (me.pageY - pY);
+            $('#sidebarmain').css({
+                width: startWidth - mx,
+                //top: my
+            });
+        });
+});
 //    restaurant_icon = L.icon({
 //	iconUrl: '/img/restaurant.png',
 //	iconSize: [30, 30],

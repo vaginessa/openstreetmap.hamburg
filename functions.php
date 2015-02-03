@@ -1,5 +1,42 @@
 <?php
 
+function osmTagName($val) {
+  return "<b>Name:</b> ".$val.'<br/>';
+}
+function osmTagWikipedia($val) {
+ preg_match('/^(.*):(.*)$/', $val, $treffer);
+
+ return "<a href='http://".$treffer[1].".wikipedia.org/wiki/$treffer[2]' target='_blank'>Wikipedia Seite</a></br>";
+}
+function osmTagIsIn($val) {
+ return "<b>Ist in:</b> ".$val.'<br/>';
+}
+function osmTagIsInCity($val) {
+ return "<b>Ist in Stadt:</b> ".$val.'<br/>';
+}
+
+function osmTagIgnore($val) {
+ return "";
+}
+
+function displayTag($key, $value) {
+  $osmTag = [
+    "name" => "osmTagName",
+    "wikipedia" => "osmTagWikipedia",
+    "is_in" => "osmTagIsIn",
+    "is_in:city" => "osmTagIsInCity",
+    "TMC:cid_58:tabcd_1:Class" => "osmTagIgnore",
+    "TMC:cid_58:tabcd_1:LCLversion" => "osmTagIgnore",
+    "TMC:cid_58:tabcd_1:LocationCode" => "osmTagIgnore",
+  ];
+
+   if (isset($osmTag[$key])) {
+     $func=$osmTag[$key];
+     return $osmTag[$key]($value);
+   } else {
+     return "<i>".$key.":".$value."</i><br/>";
+   }
+}
 function getRootURL() {
 	 return "/osmhh/";
 }
@@ -19,11 +56,12 @@ $ort=str_replace('Stadtteil/','',$path);
 $rtn="<h2>Stadtteil ".$ort."</h2>";
 $tags=getTagsFromOrt($ort,'10');
 }
-$rtn=$rtn."<table>";
+
+$rtn=$rtn.'Folgende Daten sind in OpenStreetMap zu diesem Objekt gespeichert:<br/>';
 foreach($tags as $key => $value) {
-	$rtn=$rtn.'<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
+	$rtn=$rtn.displayTag($key, $value);
 }
-$rtn=$rtn."</table>";
+
 return $rtn;
 }
 

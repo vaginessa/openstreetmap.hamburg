@@ -26,6 +26,7 @@ header('Content-Type: text/html; charset=utf-8');
  <script src="<?php echo $url ?>js/main.js"></script>
 </head>
 <body>
+<div id='sidebarmain'>
 <div id='sidebar'>
 <div id='objInfo'>
 <?php 
@@ -48,6 +49,9 @@ foreach ($stadtteile as $key => $stadtteil) {
 	?></a></li><?php
 }
 ?>
+</div>
+<div id='drag'>
+</div>
 </div>
 <div id='map'>
 </div>
