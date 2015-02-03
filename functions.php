@@ -6,7 +6,7 @@ function osmTagName($val) {
 function osmTagWikipedia($val) {
  preg_match('/^(.*):(.*)$/', $val, $treffer);
 
- return "<a href='http://".$treffer[1].".wikipedia.org/wiki/$treffer[2]' target='_blank'>Wikipedia Seite</a></br>";
+ return "<b>Wikipedia Seite:</b><a href='http://".$treffer[1].".wikipedia.org/wiki/$treffer[2]' target='_blank'>".$val."</a></br>";
 }
 function osmTagIsIn($val) {
  return "<b>Ist in:</b> ".$val.'<br/>';
@@ -15,16 +15,70 @@ function osmTagIsInCity($val) {
  return "<b>Ist in Stadt:</b> ".$val.'<br/>';
 }
 
+function osmAdminLevel($val) {
+ $adminLevel = [
+   "2"=>'2 Landesgrenze',
+   "4"=>'4 Bundesland-Grenze',
+   "5"=>'5 Regierungsbezirks-Grenze',
+   "6"=>'6 Kreisgrenze',
+   "7"=>'7 Verwaltungsgemeinschaft',
+   "8"=>'8 Stadt/Gemeinde',
+   "9"=>'9 Stadtbezirk',
+   "10"=>'10 Stadtteil'
+ ];
+ if (isset($adminLevel[$val])) {
+   return "<b>Grenzebene:</b> ".$adminLevel[$val].'<br/>';
+ }
+ return "<b>Admin-Level:</b> ".$val.' (Vermutlich nicht richtig eingetragen)<br/>';
+}
+
+function osmNamePrefix($val) {
+  return "<b>Vorsatzwort:</b> ".$val."<br/>";
+}
+
+function osmNote($val) {
+ return '<b>Notiz für den OSM Mitwirkenden:</b> <span style="font-size:75%">'.$val."</span><br/>";
+}
 function osmTagIgnore($val) {
  return "";
 }
 
+function osmType($val) {
+ if ($val == "boundary") {
+  return "<b>Typ:</b> Grenze<br/>";
+ }
+ return "<b>Typ:</b> ".$val."<br/>";
+}
+
+function osmBoundary($val) {
+
+ $boundary = [
+   "administrative"=>'Verwaltungsgrenze',
+   "maritime"=>'Seegrenze',
+   "national_park"=>'Nationalpark',
+   "political"=>'Wahlkreis',
+   "postal_code"=>'PLZ Gebiet',
+   "protected_area"=>'Schutzgebiet',
+ ];
+ if (isset($boundary[$val])) {
+   return "<b>Grenztyp:</b> ".$boundary[$val].'<br/>';
+ }
+ return "<b>Grenztyp:</b> ".$val.' (evtl. nicht richtig eingetragen)<br/>';
+
+
+}
 function displayTag($key, $value) {
   $osmTag = [
     "name" => "osmTagName",
     "wikipedia" => "osmTagWikipedia",
     "is_in" => "osmTagIsIn",
     "is_in:city" => "osmTagIsInCity",
+    "admin_level" => "osmAdminLevel",
+    "boundary" => "osmBoundary",
+    "name:prefix" => "osmNamePrefix",
+    "type" => "osmType",
+    "note" => "osmNote",
+    "boundary_type" => "osmTagIgnore",
     "TMC:cid_58:tabcd_1:Class" => "osmTagIgnore",
     "TMC:cid_58:tabcd_1:LCLversion" => "osmTagIgnore",
     "TMC:cid_58:tabcd_1:LocationCode" => "osmTagIgnore",
@@ -45,23 +99,38 @@ function getRootURL() {
 function getPathInfo($path) {
 
 $tags=[];
+$rtn="";
 if (startsWith($path,"Bezirk/")) {
 $bezirk=str_replace('Bezirk/','',$path);
 $rtn="<h2>Bezirk ".$bezirk."</h2>";
-$tags=getTagsFromOrt($bezirk,'9');
+$osm=getOsmFromOrt($bezirk,'9');
 }
 
 if (startsWith($path,"Stadtteil/")) {
 $ort=str_replace('Stadtteil/','',$path);
 $rtn="<h2>Stadtteil ".$ort."</h2>";
-$tags=getTagsFromOrt($ort,'10');
+$osm=getOsmFromOrt($ort,'10');
 }
 
-$rtn=$rtn.'Folgende Daten sind in OpenStreetMap zu diesem Objekt gespeichert:<br/>';
-foreach($tags as $key => $value) {
+if ($rtn != "") {
+$rtn=$rtn.'Folgende Daten sind in OpenStreetMap zu ';
+$objName=$osm['type'];
+if ($osm['type']=="relation") {
+   $objName='der Relation';
+}
+if ($osm['type']=="node") {
+   $objName='der Knotenpunkt';
+}
+if ($osm['type']=="way") {
+   $objName='der Linie';
+}
+$objName=$objName.' '.$osm['id'];
+$rtn=$rtn.'<a href="https://www.openstreetmap.org/'.$osm['type']."/".$osm['id'].'" target="_blank">'.$objName.'</a>  gespeichert:<br/>';
+foreach($osm['tags'] as $key => $value) {
 	$rtn=$rtn.displayTag($key, $value);
 }
-
+}
+$rtn=$rtn.'Sie können diese <a href="https://www.openstreetmap.org/edit?'.$osm['type']."=".$osm['id'].'" target="_blank">selbst korrigieren oder ergänzen.</a>';
 return $rtn;
 }
 
@@ -98,7 +167,7 @@ function getFromOverpassWithCache($filename,$url) {
  return $data;
 }
 
-function getTagsFromOrt($name,$alevel) {
+function getOsmFromOrt($name,$alevel) {
 $filename_suburb="cache/suburb.json";
  $boundarys=json_decode(getFromOverpassWithCache($filename_suburb,$url_suburb));
 
@@ -106,7 +175,11 @@ $bezirke=array();
 $stadteile=array();
 foreach ($boundarys->{'elements'} as $ele) {
 	if (($ele->{'tags'}->{'name'} == $name) && ($ele->{'tags'}->{'admin_level'} == $alevel)) {
-	  return $ele->{'tags'};
+	  return [
+ 	  'tags'=>$ele->{'tags'},
+	  'id'=>$ele->{'id'},
+	  'type'=>$ele->{'type'}
+         ];
 	}
 }
 }

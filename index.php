@@ -49,6 +49,11 @@ foreach ($stadtteile as $key => $stadtteil) {
 	?></a></li><?php
 }
 ?>
+<h2>Infos</h2>
+<ul>
+<li>Besuchen Sie den <a href="https://wiki.openstreetmap.org/wiki/Hamburger_Mappertreffen" target="_blank">Hamburger OSM-Stammstisch</a>!</li>
+<li><a href="https://wiki.openstreetmap.org/wiki/Openstreetmap.hamburg" traget="_blank">Über diese Karte.</a></li>
+</ul>
 </div>
 <div id='drag'>
 </div>
