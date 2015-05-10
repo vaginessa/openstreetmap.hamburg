@@ -92,7 +92,7 @@ function displayTag($key, $value) {
    }
 }
 function getRootURL() {
-	 return "/osmhh/";
+	 return "/";
 }
 
 
