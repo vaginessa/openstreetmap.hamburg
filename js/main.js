@@ -125,7 +125,7 @@ function loadBoundary(name,alevel) {
 }
 function displayPathContent(content) {
     $('#objInfo').html(content);
-    console.log(content);
+    $('#sidebar').animate({ scrollTop: 0 }, "fast");
 }
 function loadPathContent(path) {
     $.ajax({
@@ -203,4 +203,22 @@ $(function() {
     // initial poi load
 //    get_op_elements();
 
+});
+window.addEventListener("popstate", function(e) {
+
+    var url=location.pathname;
+    url=url.replace(baseurl,'');
+    if (url.indexOf('Stadtteil/')==0) {
+	var name=url.replace('Stadtteil\/','')
+	document.getElementsByTagName('title')[0].innerHTML = "OpenStreetMap Hamburg Stadtteil "+name;
+	loadPathContent('Stadtteil/'+name);
+	loadBoundary(name,'10');
+    } else if (url.indexOf('Bezirk/')==0) {
+	var name=url.replace('Bezirk\/','')
+	document.getElementsByTagName('title')[0].innerHTML = "OpenStreetMap Hamburg Bezirk "+name;
+	loadPathContent('Bezirk/'+name);
+	loadBoundary(name,'9');
+    } else {
+	loadPathContent('');
+    }
 });

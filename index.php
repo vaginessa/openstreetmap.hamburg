@@ -33,14 +33,18 @@ header('Content-Type: text/html; charset=utf-8');
 print getPathInfo($_GET['p']);
 ?>
 </div>
-<h2>Bezirke</h2><?php
+<h2>Bezirke</h2>
+<ul>
+<?php
 foreach ($bezirke as $bezirk) {
 	?><li><a href="<?php echo $url;
 	?>Bezirk/<?php print $bezirk; 
 	?>" onclick="return loadBezirk('<?php print $bezirk ?>');"><?php print $bezirk ?></a></li><?php
 }
 
-?><h2>Stadtteile</h2><?php
+?></ul>
+<h2>Stadtteile</h2>
+<ul><?php
 foreach ($stadtteile as $key => $stadtteil) {
 	?><li><a href="<?php 
 	echo $url . 'Stadtteil/' . $stadtteil; 
@@ -49,6 +53,7 @@ foreach ($stadtteile as $key => $stadtteil) {
 	?></a></li><?php
 }
 ?>
+</ul>
 <h2>Infos</h2>
 <ul>
 <li>Besuchen Sie den <a href="https://wiki.openstreetmap.org/wiki/Hamburger_Mappertreffen" target="_blank">Hamburger OSM-Stammstisch</a>!</li>
