@@ -129,8 +129,9 @@ $rtn=$rtn.'<a href="https://www.openstreetmap.org/'.$osm['type']."/".$osm['id'].
 foreach($osm['tags'] as $key => $value) {
 	$rtn=$rtn.displayTag($key, $value);
 }
-}
+
 $rtn=$rtn.'Sie können diese <a href="https://www.openstreetmap.org/edit?'.$osm['type']."=".$osm['id'].'" target="_blank">selbst korrigieren oder ergänzen.</a>';
+}
 return $rtn;
 }
 
